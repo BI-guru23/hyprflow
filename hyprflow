@@ -1,0 +1,55 @@
+#!/bin/bash
+
+WHISPER_BIN="/home/harsh/Dev/playground/whisper.cpp/build/bin/whisper-cli"
+WHISPER_MODEL="/home/harsh/Dev/playground/whisper.cpp/models/ggml-base.en.bin"
+LLAMA_BIN="/home/harsh/Dev/playground/llama.cpp/llama-cli"
+LLAMA_MODEL="/home/harsh/Dev/playground/llama.cpp/models/ggml-org_gemma-3-1b-it-GGUF_gemma-3-1b-it-Q4_K_M.gguf"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AUDIO_DIR="${SCRIPT_DIR}/audio"
+TRANSCRIPT_DIR="${SCRIPT_DIR}/transcript"
+STATE_FILE="/tmp/hyprflow_recording.state"
+
+mkdir -p "$AUDIO_DIR" "$TRANSCRIPT_DIR"
+toggle_indicator() {
+  pkill -RTMIN+9 waybar
+}
+
+if pgrep -f "pw-record.*hyprflow" > /dev/null 2>&1; then
+    pkill -SIGINT -f "pw-record.*hyprflow"
+
+    source "$STATE_FILE"
+    AUDIO_FILE="${AUDIO_DIR}/${TIME}.wav"
+    TRANSCRIPT_FILE="${TRANSCRIPT_DIR}/${TIME}_raw.txt"
+
+    "$WHISPER_BIN" -m "$WHISPER_MODEL" -f "$AUDIO_FILE" -nt -t "$(nproc)" 2>/dev/null > "$TRANSCRIPT_FILE"
+
+    toggle_indicator
+
+    # Trim leading/trailing whitespace and copy to clipboard
+    sed 's/^[[:space:]]*//;s/[[:space:]]*$//' "$TRANSCRIPT_FILE" | tr -d '\n' | wl-copy
+    hyprctl dispatch sendshortcut "CTRL SHIFT, V, activewindow"
+    rm -f "$STATE_FILE"
+else
+    TIME=$(date +%s)
+    echo "TIME=$TIME" > "$STATE_FILE"
+    AUDIO_FILE="${AUDIO_DIR}/${TIME}.wav"
+
+    toggle_indicator
+
+    pw-record --rate 16000 --channels 1 "$AUDIO_FILE" 2>/dev/null &
+fi
+
+
+# Postprocessing not a priority right now.
+# API_KEY="${GROQ_API_KEY:?Error: Please set API_KEY environment variable.}"
+# MODEL="llama-3.3-70b-versatile"
+# SYSTEM_PROMPT="System: You are an expert voice-to-text editor. 
+# Your goal is to rewrite the following transcript to be professional, concise, and grammatically correct. 
+# Rules:
+# 1. Remove all filler words (um, ah, like, you know) and stutters.
+# 2. Fix grammar and punctuation errors.
+# 3. If the user lists multiple items, steps, or points, format them as a clean Markdown bulleted list.
+# 4. Do not change the original meaning or tone.
+# 5. Output ONLY the final polished text. No introductions like 'Here is the text'.
+# "
