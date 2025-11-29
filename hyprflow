@@ -5,12 +5,12 @@ WHISPER_MODEL="/home/harsh/Dev/playground/whisper.cpp/models/ggml-base.en.bin"
 LLAMA_BIN="/home/harsh/Dev/playground/llama.cpp/llama-cli"
 LLAMA_MODEL="/home/harsh/Dev/playground/llama.cpp/models/ggml-org_gemma-3-1b-it-GGUF_gemma-3-1b-it-Q4_K_M.gguf"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AUDIO_DIR="${SCRIPT_DIR}/audio"
-TRANSCRIPT_DIR="${SCRIPT_DIR}/transcript"
-STATE_FILE="/tmp/hyprflow_recording.state"
+SCRIPT_DIR="/home/harsh/Dev/playground/hyprflow"
+RECORDING_DIR="${SCRIPT_DIR}/recordings"
+TRANSCRIPT_DIR="${SCRIPT_DIR}/transcripts"
+STATE_FILE="/tmp/hyprflow.state"
 
-mkdir -p "$AUDIO_DIR" "$TRANSCRIPT_DIR"
+mkdir -p "$RECORDING_DIR" "$TRANSCRIPT_DIR"
 toggle_indicator() {
   pkill -RTMIN+9 waybar
 }
@@ -19,10 +19,10 @@ if pgrep -f "pw-record.*hyprflow" > /dev/null 2>&1; then
     pkill -SIGINT -f "pw-record.*hyprflow"
 
     source "$STATE_FILE"
-    AUDIO_FILE="${AUDIO_DIR}/${TIME}.wav"
+    RECORDING_FILE="${RECORDING_DIR}/${TIME}.wav"
     TRANSCRIPT_FILE="${TRANSCRIPT_DIR}/${TIME}_raw.txt"
 
-    "$WHISPER_BIN" -m "$WHISPER_MODEL" -f "$AUDIO_FILE" -nt -t "$(nproc)" 2>/dev/null > "$TRANSCRIPT_FILE"
+    "$WHISPER_BIN" -m "$WHISPER_MODEL" -f "$RECORDING_FILE" -nt -t "$(nproc)" 2>/dev/null > "$TRANSCRIPT_FILE"
 
     toggle_indicator
 
@@ -33,13 +33,12 @@ if pgrep -f "pw-record.*hyprflow" > /dev/null 2>&1; then
 else
     TIME=$(date +%s)
     echo "TIME=$TIME" > "$STATE_FILE"
-    AUDIO_FILE="${AUDIO_DIR}/${TIME}.wav"
+    RECORDING_FILE="${RECORDING_DIR}/${TIME}.wav"
 
     toggle_indicator
 
-    pw-record --rate 16000 --channels 1 "$AUDIO_FILE" 2>/dev/null &
+    pw-record --rate 16000 --channels 1 "$RECORDING_FILE" 2>/dev/null &
 fi
-
 
 # Postprocessing not a priority right now.
 # API_KEY="${GROQ_API_KEY:?Error: Please set API_KEY environment variable.}"
