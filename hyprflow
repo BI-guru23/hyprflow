@@ -2,18 +2,7 @@
 
 # Determine flow directory dynamically
 FLOW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Load configuration from flow directory
-CONFIG_FILE="${FLOW_DIR}/config"
-if [ -f "$CONFIG_FILE" ]; then
-  source "$CONFIG_FILE"
-fi
-
-# Validate WHISPER_DIR is set
-if [ -z "$WHISPER_DIR" ]; then
-  notify-send --urgency=critical "Error: WHISPER_DIR not set. Edit: $CONFIG_FILE"
-  exit 1
-fi
+WHISPER_DIR="${FLOW_DIR}/whisper.cpp"
 
 if [ ! -d "$WHISPER_DIR" ]; then
   notify-send --urgency=critical "Error: WHISPER_DIR directory not found: $WHISPER_DIR"
@@ -21,7 +10,7 @@ if [ ! -d "$WHISPER_DIR" ]; then
 fi
 
 # Derive paths from WHISPER_DIR
-WHISPER_BIN="${WHISPER_DIR}/build/bin/whisper-cli"
+WHISPER_BIN="${WHISPER_DIR}/whisper"
 WHISPER_MODEL="${WHISPER_DIR}/models/ggml-base.en.bin"
 
 # Check if whisper-cli exists
