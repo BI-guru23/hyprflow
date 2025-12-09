@@ -96,6 +96,27 @@ stop_animation() {
   fi
 }
 
+cleanup_old_files() {
+  # Keep only the latest 5 versions of recordings and transcripts
+  local keep_count=5
+
+  # Cleanup old recordings (keeping latest 5)
+  if [ -d "$RECORDING_DIR" ]; then
+    local recording_count=$(ls -1 "$RECORDING_DIR"/*.wav 2>/dev/null | wc -l)
+    if [ "$recording_count" -gt "$keep_count" ]; then
+      ls -1t "$RECORDING_DIR"/*.wav | tail -n +$((keep_count + 1)) | xargs -r rm -f
+    fi
+  fi
+
+  # Cleanup old transcripts (keeping latest 5)
+  if [ -d "$TRANSCRIPT_DIR" ]; then
+    local transcript_count=$(ls -1 "$TRANSCRIPT_DIR"/*_raw.txt 2>/dev/null | wc -l)
+    if [ "$transcript_count" -gt "$keep_count" ]; then
+      ls -1t "$TRANSCRIPT_DIR"/*_raw.txt | tail -n +$((keep_count + 1)) | xargs -r rm -f
+    fi
+  fi
+}
+
 if pgrep -f "pw-record.*hyprflow" >/dev/null 2>&1; then
   pkill -SIGINT -f "pw-record.*hyprflow"
 
@@ -111,6 +132,9 @@ if pgrep -f "pw-record.*hyprflow" >/dev/null 2>&1; then
   sed 's/^[[:space:]]*//;s/[[:space:]]*$//' "$TRANSCRIPT_FILE" | tr -d '\n' | wl-copy
   hyprctl dispatch sendshortcut "CTRL SHIFT, V, activewindow"
   rm -f "$STATE_FILE"
+
+  # Cleanup old files, keeping only the latest 5 versions
+  cleanup_old_files
 else
   TIME=$(date +%s)
   echo "TIME=$TIME" >"$STATE_FILE"
